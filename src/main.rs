@@ -1,6 +1,7 @@
 use pixels::{Error, Pixels, SurfaceTexture};
 use rand::Rng;
 use std::time::Instant;
+use winit::platform::wayland::WindowBuilderExtWayland;
 use winit::{
     dpi::PhysicalSize,
     event::{ElementState, Event, KeyboardInput, VirtualKeyCode, WindowEvent},
@@ -276,6 +277,10 @@ fn update_and_draw_objects<T: CelestialObject>(
 }
 
 fn main() -> Result<(), Error> {
+    let target_fps = 60;
+    let start_time = Instant::now();
+    let mut last_frame = Instant::now();
+
     let event_loop = EventLoop::new();
     let window = WindowBuilder::new()
         .with_title("wl-starfield")
@@ -302,8 +307,6 @@ fn main() -> Result<(), Error> {
         .map(|_| Star::new(&mut rng, screen_details.width, screen_details.height))
         .collect();
     let mut shooting_stars: Vec<ShootingStar> = Vec::new();
-    let start = Instant::now();
-    let mut last_frame = start;
 
     event_loop.run(move |event, _, control_flow| {
         *control_flow = ControlFlow::Poll;
@@ -314,11 +317,11 @@ fn main() -> Result<(), Error> {
                 let dt = (now - last_frame).as_secs_f32();
                 last_frame = now;
 
-                let elapsed = start.elapsed().as_secs_f32();
+                let elapsed = start_time.elapsed().as_secs_f32();
+
                 let frame = pixels.frame_mut();
                 frame.fill(0);
 
-                // Update stars with special handling for twinkling
                 for star in &mut stars {
                     star.update(dt, elapsed, &mut rng, &screen_details);
                     star.update_twinkle(elapsed);
@@ -336,7 +339,6 @@ fn main() -> Result<(), Error> {
                     shooting_stars.push(ShootingStar::new(start_x, start_y, vx, vy));
                 }
 
-                // Update and draw shooting stars using the trait
                 update_and_draw_objects(
                     &mut shooting_stars,
                     dt,

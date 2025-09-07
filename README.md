@@ -1,5 +1,7 @@
 # wl-starfield
 
+![Starfield demo](assets/wl-starfield.gif)
+
 An AI-slop starfield animation written in Rust using [`winit`](https://github.com/rust-windowing/winit) and [`pixels`](https://github.com/parasyte/pixels).
 Built for fun as a **desktop background effect** for myself on Wayland / Hyprland.
 
